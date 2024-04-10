@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Certification-network3
 =======
 #                               Certification Verification using Blockchain
