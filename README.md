@@ -460,4 +460,3 @@ docker-compose -f ./docker/docker-compose-ca.yaml -f ./docker/docker-compose-cer
 ```
 docker-compose -f ./docker/docker-compose-ca.yaml -f ./docker/docker-compose-certnetwork.yaml start
 ```
->>>>>>> 0fa00fb (first)
