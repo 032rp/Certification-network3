@@ -1,5 +1,3 @@
-# Certification-network3
-=======
 #                               Certification Verification using Blockchain
 ###                                 Certificate Network Setup Guide
 ##### This guide provides step-by-step instructions for setting up a Hyperledger Fabric network for managing an certificate Network. The network architecture includes three organizations: IIT, MHRD, and NPCL.
