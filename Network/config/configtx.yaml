@@ -1,0 +1,172 @@
+Organizations:
+  - &OrdererOrg
+    Name: OrdererOrg
+    ID: OrdererMSP
+    MSPDir: ../organizations/ordererOrganizations/certnetwork.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererMSP.admin')"
+    OrdererEndpoints:
+      - orderer1.certnetwork.com:7050
+      - orderer2.certnetwork.com:7051
+      - orderer3.certnetwork.com:7052
+  
+  - &iit
+    Name: iitMSP
+    ID: iitMSP
+    MSPDir: ../organizations/peerOrganizations/iit.certnetwork.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('iitMSP.admin', 'iitMSP.peer', 'iitMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('iitMSP.admin', 'iitMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('iitMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('iitMSP.peer')"
+  
+  - &mhrd
+    Name: mhrdMSP
+    ID: mhrdMSP
+    MSPDir: ../organizations/peerOrganizations/mhrd.certnetwork.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('mhrdMSP.admin', 'mhrdMSP.peer', 'mhrdMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('mhrdMSP.admin', 'mhrdMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('mhrdMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('mhrdMSP.peer')"
+  
+  - &npcl
+    Name: npclMSP
+    ID: npclMSP
+    MSPDir: ../organizations/peerOrganizations/npcl.certnetwork.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('npclMSP.admin', 'npclMSP.peer', 'npclMSP.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('npclMSP.admin', 'npclMSP.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('npclMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('npclMSP.peer')"
+
+Capabilities:  
+  Channel: &ChannelCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Application: &ApplicationCapabilities
+    V2_5: true
+    
+Application: &ApplicationDefaults
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    LifecycleEndorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+    Endorsement:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Endorsement"
+  Capabilities:
+    <<: *ApplicationCapabilities
+
+Orderer: &OrdererDefaults
+  Addresses:
+      - orderer1.certnetwork.com:7050
+      - orderer2.certnetwork.com:7051
+      - orderer3.certnetwork.com:7052
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+  Organizations:
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+  Capabilities:
+    <<: *ChannelCapabilities
+
+Profiles:
+  CertChannelUsingRaft:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+      OrdererType: etcdraft
+      EtcdRaft:
+        Consenters:
+          - Host: orderer1.certnetwork.com
+            Port: 7050
+            ClientTLSCert: ../organizations/ordererOrganizations/certnetwork.com/orderers/orderer1.certnetwork.com/tls/server.crt
+            ServerTLSCert: ../organizations/ordererOrganizations/certnetwork.com/orderers/orderer1.certnetwork.com/tls/server.crt
+          - Host: orderer2.certnetwork.com
+            Port: 7051
+            ClientTLSCert: ../organizations/ordererOrganizations/certnetwork.com/orderers/orderer2.certnetwork.com/tls/server.crt
+            ServerTLSCert: ../organizations/ordererOrganizations/certnetwork.com/orderers/orderer2.certnetwork.com/tls/server.crt
+          - Host: orderer3.certnetwork.com
+            Port: 7052
+            ClientTLSCert: ../organizations/ordererOrganizations/certnetwork.com/orderers/orderer3.certnetwork.com/tls/server.crt
+            ServerTLSCert: ../organizations/ordererOrganizations/certnetwork.com/orderers/orderer3.certnetwork.com/tls/server.crt
+      Organizations:
+        - *OrdererOrg
+      Capabilities: *OrdererCapabilities
+    Application:
+      <<: *ApplicationDefaults
+      Organizations:
+        - *iit
+        - *mhrd
+        - *npcl
+      Capabilities: *ApplicationCapabilities
